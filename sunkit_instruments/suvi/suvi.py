@@ -6,12 +6,7 @@ from astropy import units as u
 from scipy import interpolate
 from scipy.ndimage import gaussian_filter
 
-from sunkit_instruments.suvi._variables import (
-    FILTER_SETUP,
-    FLIGHT_MODEL,
-    VALID_SPACECRAFT,
-    VALID_WAVELENGTH_CHANNELS,
-)
+from sunkit_instruments.suvi._variables import FILTER_SETUP, FLIGHT_MODEL, VALID_SPACECRAFT, VALID_WAVELENGTH_CHANNELS
 
 __all__ = [
     "despike_l1b_file",
@@ -155,9 +150,7 @@ def get_response(request, spacecraft=16, ccd_temperature=-60.0, exposure_type="l
         wavelength_channel = int(header["WAVELNTH"])
         spacecraft = int(header["TELESCOP"].replace(" ", "").replace("G", ""))
         ccd_temperature = (header["CCD_TMP1"] + header["CCD_TMP2"]) / 2.0
-        exposure_type = "_".join(
-            header["SCI_OBJ"].replace(" ", "").split(sep="_")[3:]
-        ).replace("_exposure", "")
+        exposure_type = "_".join(header["SCI_OBJ"].replace(" ", "").split(sep="_")[3:]).replace("_exposure", "")
     elif isinstance(request, int):
         wavelength_channel = request
     else:
@@ -171,15 +164,9 @@ def get_response(request, spacecraft=16, ccd_temperature=-60.0, exposure_type="l
             f"Valid wavelength channels are: {VALID_WAVELENGTH_CHANNELS}"
         )
     if spacecraft not in VALID_SPACECRAFT:
-        raise ValueError(
-            f"Invalid spacecraft: {spacecraft}"
-            f"Valid spacecraft are: {VALID_SPACECRAFT}"
-        )
+        raise ValueError(f"Invalid spacecraft: {spacecraft}" f"Valid spacecraft are: {VALID_SPACECRAFT}")
 
-    eff_area_file = (
-        PATH_TO_FILES
-        / f"SUVI_{FLIGHT_MODEL[spacecraft]}_{wavelength_channel}A_eff_area.txt"
-    )
+    eff_area_file = PATH_TO_FILES / f"SUVI_{FLIGHT_MODEL[spacecraft]}_{wavelength_channel}A_eff_area.txt"
     gain_file = PATH_TO_FILES / f"SUVI_{FLIGHT_MODEL[spacecraft]}_gain.txt"
 
     eff_area = np.loadtxt(eff_area_file, skiprows=12)
@@ -197,9 +184,9 @@ def get_response(request, spacecraft=16, ccd_temperature=-60.0, exposure_type="l
 
     geometric_area = 19.362316 * u.cm * u.cm
     solid_angle = ((2.5 / 3600.0 * (np.pi / 180.0)) ** 2.0) * u.sr
-    master_e_per_phot = (
-        (6.626068e-34 * (u.J / u.Hz)) * (2.99792458e8 * (u.m / u.s))
-    ) / (wave.to(u.m) * ((u.eV.to(u.J, 3.65)) * u.J))
+    master_e_per_phot = ((6.626068e-34 * (u.J / u.Hz)) * (2.99792458e8 * (u.m / u.s))) / (
+        wave.to(u.m) * ((u.eV.to(u.J, 3.65)) * u.J)
+    )
     response = effective_area * (master_e_per_phot / gain)
 
     response_info = {

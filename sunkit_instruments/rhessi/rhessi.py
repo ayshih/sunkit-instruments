@@ -166,9 +166,7 @@ def parse_observing_summary_hdulist(hdulist):
     countrate = uncompress_countrate(compressed_countrate)
     dim = np.array(countrate[:, 0]).size
 
-    time_array = parse_time(reference_time_ut) + TimeDelta(
-        time_interval_sec * np.arange(dim) * u.second
-    )
+    time_array = parse_time(reference_time_ut) + TimeDelta(time_interval_sec * np.arange(dim) * u.second)
 
     #  TODO generate the labels for the dict automatically from labels
     data = {"time": time_array, "data": countrate, "labels": labels}
@@ -193,9 +191,7 @@ def uncompress_countrate(compressed_countrate):
 
     # Ensure uncompressed counts are between 0 and 255
     if (compressed_countrate.min() < 0) or (compressed_countrate.max() > 255):
-        raise ValueError(
-            f"Exepected uncompressed counts {compressed_countrate} to in range 0-255"
-        )
+        raise ValueError(f"Exepected uncompressed counts {compressed_countrate} to in range 0-255")
 
     # TODO Must be a better way than creating entire lookup table on each call
     ll = np.arange(0, 16, 1)
@@ -225,9 +221,7 @@ def hsi_linecolors():
     return ("black", "magenta", "lime", "cyan", "y", "red", "blue", "orange", "olive")
 
 
-def _backproject(
-    calibrated_event_list, detector=8, pixel_size=(1.0, 1.0), image_dim=(64, 64)
-):
+def _backproject(calibrated_event_list, detector=8, pixel_size=(1.0, 1.0), image_dim=(64, 64)):
     """
     Given a stacked calibrated event list fits file create a back projection
     image for an individual detectors.
@@ -266,14 +260,8 @@ def _backproject(
     grid_transmission = afits[fits_detector_index].data.field("gridtran")
     count = afits[fits_detector_index].data.field("count")
 
-    tempa = (np.arange(image_dim[0] * image_dim[1]) % image_dim[0]) - (
-        image_dim[0] - 1
-    ) / 2.0
-    tempb = (
-        tempa.reshape(image_dim[0], image_dim[1])
-        .transpose()
-        .reshape(image_dim[0] * image_dim[1])
-    )
+    tempa = (np.arange(image_dim[0] * image_dim[1]) % image_dim[0]) - (image_dim[0] - 1) / 2.0
+    tempb = tempa.reshape(image_dim[0], image_dim[1]).transpose().reshape(image_dim[0] * image_dim[1])
 
     pixel = np.array(list(zip(tempa, tempb))) * pixel_size[0]
     phase_pixel = (2 * np.pi / harm_ang_pitch) * (
@@ -327,9 +315,7 @@ def backprojection(
     afits = sunpy.io.read_file(calibrated_event_list)
     info_parameters = afits[2]
     xyoffset = info_parameters.data.field("USED_XYOFFSET")[0]
-    time_range = TimeRange(
-        info_parameters.data.field("ABSOLUTE_TIME_RANGE")[0], format="utime"
-    )
+    time_range = TimeRange(info_parameters.data.field("ABSOLUTE_TIME_RANGE")[0], format="utime")
 
     image = np.zeros(image_dim)
 
@@ -363,8 +349,7 @@ def backprojection(
         "HGLN_OBS": 0,
         "RSUN_OBS": sun.angular_radius(time_range.center).value,
         "RSUN_REF": sunpy.sun.constants.radius.value,
-        "DSUN_OBS": sun.earth_distance(time_range.center).value
-        * sunpy.sun.constants.au.value,
+        "DSUN_OBS": sun.earth_distance(time_range.center).value * sunpy.sun.constants.au.value,
     }
 
     result_map = sunpy.map.Map(image, dict_header)
@@ -400,10 +385,7 @@ def _build_energy_bands(label, bands):
     matched = unit_pattern.match(label)
 
     if matched is None:
-        raise ValueError(
-            "Unable to find energy unit in '{}' "
-            "using REGEX '{}'".format(label, unit_pattern.pattern)
-        )
+        raise ValueError("Unable to find energy unit in '{}' " "using REGEX '{}'".format(label, unit_pattern.pattern))
 
     unit = matched.group("UNIT").strip()
 
@@ -446,9 +428,7 @@ def imagecube2map(rhessi_imagecube_file):
     d_max = {}
     e_ax = f[1].data[0]["ENERGY_AXIS"].reshape((-1, 2))  # reshape energy axis to be 2D
     t_ax = f[1].data[0]["TIME_AXIS"].reshape((-1, 2))  # reshape time axis to be 2D
-    data = f[0].data.reshape(
-        tuple([1] * (4 - len(f[0].data.shape))) + f[0].data.shape
-    )  # reshape data to be 4D
+    data = f[0].data.reshape(tuple([1] * (4 - len(f[0].data.shape))) + f[0].data.shape)  # reshape data to be 4D
     for e in range(e_ax.shape[0]):
         d_min[e] = 1e10
         d_max[e] = -1e10

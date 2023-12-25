@@ -24,9 +24,7 @@ author = "The SunPy Community"
 copyright = f"{datetime.datetime.now().year}, {author}"
 release = __version__
 sunkit_instruments_version = Version(__version__)
-is_release = not (
-    sunkit_instruments_version.is_prerelease or sunkit_instruments_version.is_devrelease
-)
+is_release = not (sunkit_instruments_version.is_prerelease or sunkit_instruments_version.is_devrelease)
 # -- General configuration -----------------------------------------------------
 suppress_warnings = [
     "app.add_directive",

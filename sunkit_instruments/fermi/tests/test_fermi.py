@@ -44,9 +44,7 @@ def test_detector_angles(pointing_file):
 
 @pytest.mark.remote_data
 def test_detector_angles_2(pointing_file):
-    det2 = fermi.get_detector_sun_angles_for_time(
-        parse_time("2012-02-15 02:00"), pointing_file[1]
-    )
+    det2 = fermi.get_detector_sun_angles_for_time(parse_time("2012-02-15 02:00"), pointing_file[1])
     assert len(det2) == 13
     assert type(det2) == dict
     assert_almost_equal(det2["n0"].value, 83.54, decimal=1)

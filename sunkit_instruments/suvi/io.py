@@ -94,35 +94,22 @@ def _fix_l1b_header(filename):
     hdr_list_new = []
     for count, item in enumerate(hdr_list):
         if count <= len(hdr_list) - 2:
-            if (
-                hdr_list[count][0:8] != "CONTINUE"
-                and hdr_list[count + 1][0:8] != "CONTINUE"
-            ):
+            if hdr_list[count][0:8] != "CONTINUE" and hdr_list[count + 1][0:8] != "CONTINUE":
                 hdr_list_new.append(hdr_list[count])
             else:
-                if (
-                    hdr_list[count][0:8] != "CONTINUE"
-                    and hdr_list[count + 1][0:8] == "CONTINUE"
-                ):
+                if hdr_list[count][0:8] != "CONTINUE" and hdr_list[count + 1][0:8] == "CONTINUE":
                     ampersand_pos = hdr_list[count].find("&")
                     if ampersand_pos != -1:
                         new_entry = hdr_list[count][0:ampersand_pos]
                     else:
-                        raise RuntimeError(
-                            "There should be an ampersand at the end of a CONTINUE'd keyword."
-                        )
+                        raise RuntimeError("There should be an ampersand at the end of a CONTINUE'd keyword.")
                     tmp_count = 1
                     while hdr_list[count + tmp_count][0:8] == "CONTINUE":
                         ampersand_pos = hdr_list[count + tmp_count].find("&")
                         if ampersand_pos != -1:
                             first_sq_pos = hdr_list[count + tmp_count].find("'")
                             if first_sq_pos != -1:
-                                new_entry = (
-                                    new_entry
-                                    + hdr_list[count + tmp_count][
-                                        first_sq_pos + 1 : ampersand_pos
-                                    ]
-                                )
+                                new_entry = new_entry + hdr_list[count + tmp_count][first_sq_pos + 1 : ampersand_pos]
                             else:
                                 raise RuntimeError(
                                     "There should be two single quotes after CONTINUE. Did not find any."
@@ -132,17 +119,12 @@ def _fix_l1b_header(filename):
                             # Read from the first to the second single quote in this case.
                             first_sq_pos = hdr_list[count + tmp_count].find("'")
                             if first_sq_pos != -1:
-                                second_sq_pos = hdr_list[count + tmp_count][
-                                    first_sq_pos + 1 :
-                                ].find("'")
+                                second_sq_pos = hdr_list[count + tmp_count][first_sq_pos + 1 :].find("'")
                                 if second_sq_pos != -1:
                                     new_entry = (
                                         new_entry
                                         + hdr_list[count + tmp_count][
-                                            first_sq_pos
-                                            + 1 : second_sq_pos
-                                            + 1
-                                            + first_sq_pos
+                                            first_sq_pos + 1 : second_sq_pos + 1 + first_sq_pos
                                         ].rstrip()
                                         + "'"
                                     )
@@ -192,9 +174,7 @@ def _read_fits(filename):
         with fits.open(filename) as hdu:
             data, header, dqf = hdu[0].data, _fix_l1b_header(filename), hdu[1].data
     else:
-        raise ValueError(
-            f"File {filename} does not look like a SUVI L1b FITS file or L2 HDR composite."
-        )
+        raise ValueError(f"File {filename} does not look like a SUVI L1b FITS file or L2 HDR composite.")
     return header, data, dqf
 
 
@@ -230,9 +210,7 @@ def _make_cdf_header(header_info):
             else:
                 if value.dtype == "|S1":
                     # Byte string to actual string, and removing weird characters
-                    header_info_copy[key] = (
-                        value.tobytes().decode("utf-8").rstrip("\x00")
-                    )
+                    header_info_copy[key] = value.tobytes().decode("utf-8").rstrip("\x00")
     # Now deal with the dates (float in the netCDF). Transform to readable string,
     # ignore bakeout date because it is always -999.
     for key, value in header_info_copy.items():
@@ -242,9 +220,7 @@ def _make_cdf_header(header_info):
             # 12:00:00 *UTC*, whereas the reference time for J2000 is in *TT*. So in
             # order to get the time right, we need to define it in TT, but add the
             # offset of 69.184 seconds between UTC and TT.
-            the_readable_date = (
-                Time("2000-01-01T12:01:09.184", scale="tt") + value * u.s
-            )
+            the_readable_date = Time("2000-01-01T12:01:09.184", scale="tt") + value * u.s
             header_info_copy[key] = the_readable_date.utc.value
     # Add NAXIS1 and NAXIS2 manually, because they are odd coming from the netCDF
     header_info_copy["NAXIS1"] = None
@@ -265,9 +241,7 @@ def _make_cdf_header(header_info):
     header.append(("EXTEND", True, "FITS dataet may contain extensions"))
     header.append(("EXTVER", 1, ""))
     header.append(("EXTNAME", "DATA", ""))
-    header.append(
-        ("LONGSTRN", "OGIP 1.0", "The HEASARC Long String Convention may be used")
-    )
+    header.append(("LONGSTRN", "OGIP 1.0", "The HEASARC Long String Convention may be used"))
     return header
 
 
@@ -292,9 +266,7 @@ def _read_netCDF(filename):
             # Deal with this here as we require the file.
             for att, val in afile.attrs.items():
                 if att in TAG_MAPPING:
-                    header[TAG_MAPPING[att]] = (
-                        val.tobytes().decode("utf-8").rstrip("\x00")
-                    )
+                    header[TAG_MAPPING[att]] = val.tobytes().decode("utf-8").rstrip("\x00")
             header["NAXIS1"] = data.shape[0]
             header["NAXIS2"] = data.shape[1]
             header["BLANK"] = blank
@@ -343,9 +315,7 @@ def read_suvi(filename):
     elif filename.lower().endswith(NETCDF_FILE_EXTENSIONS):
         header, data, dqf = _read_netCDF(filename)
     else:
-        raise ValueError(
-            f"File {filename} does not look like a valid FITS or netCDF file."
-        )
+        raise ValueError(f"File {filename} does not look like a valid FITS or netCDF file.")
     return header, data, dqf
 
 
@@ -410,9 +380,7 @@ def files_to_map(
     elif any(fn in os.path.basename(files[0]) for fn in L1B_MATCHES):
         composites = False
     else:
-        raise ValueError(
-            f"First file {files[0]} does not look like a SUVI L1b file or L2 HDR composite."
-        )
+        raise ValueError(f"First file {files[0]} does not look like a SUVI L1b file or L2 HDR composite.")
 
     datas = []
     headers = []
@@ -424,9 +392,7 @@ def files_to_map(
                 datas.append(data)
                 headers.append(header)
             else:
-                warn_user(
-                    f"File {afile} does not look like a SUVI L2 HDR composite. Skipping."
-                )
+                warn_user(f"File {afile} does not look like a SUVI L2 HDR composite. Skipping.")
         else:
             if any(fn in os.path.basename(afile) for fn in L1B_MATCHES):
                 header, data, dqf_mask = read_suvi(afile)

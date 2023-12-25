@@ -63,8 +63,7 @@ ax.imshow(
 ax.set_axis_off()
 ax.text(0, 158, time_stamp, fontsize=14, color="white")
 legend_elements = [
-    Patch(facecolor=color, edgecolor="black", label=label.replace("_", " "))
-    for label, color in SOLAR_COLORS.items()
+    Patch(facecolor=color, edgecolor="black", label=label.replace("_", " ")) for label, color in SOLAR_COLORS.items()
 ]
 ax.legend(
     handles=legend_elements,

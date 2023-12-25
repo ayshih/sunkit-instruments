@@ -39,9 +39,7 @@ def test_suvi_fix_l1b_header(L1B_FITS):
 def test_files_to_map_l1b_nc(L1B_NC):
     one = suvi.files_to_map(L1B_NC)
     collection = suvi.files_to_map([L1B_NC, L1B_NC, L1B_NC, L1B_NC])
-    collection_despike = suvi.files_to_map(
-        [L1B_NC, L1B_NC, L1B_NC, L1B_NC], despike_l1b=True
-    )
+    collection_despike = suvi.files_to_map([L1B_NC, L1B_NC, L1B_NC, L1B_NC], despike_l1b=True)
 
     assert isinstance(one, sunpy.map.GenericMap)
     assert isinstance(collection, sunpy.map.MapSequence)
@@ -56,9 +54,7 @@ def test_files_to_map_l1b_nc(L1B_NC):
 def test_files_to_map_l1b_fits(L1B_FITS):
     one = suvi.files_to_map(L1B_FITS)
     collection = suvi.files_to_map([L1B_FITS, L1B_FITS, L1B_FITS, L1B_FITS])
-    collection_despike = suvi.files_to_map(
-        [L1B_FITS, L1B_FITS, L1B_FITS, L1B_FITS], despike_l1b=True
-    )
+    collection_despike = suvi.files_to_map([L1B_FITS, L1B_FITS, L1B_FITS, L1B_FITS], despike_l1b=True)
 
     assert isinstance(one, sunpy.map.GenericMap)
     assert isinstance(collection, sunpy.map.MapSequence)
@@ -67,9 +63,7 @@ def test_files_to_map_l1b_fits(L1B_FITS):
     assert not np.array_equal(collection[0].data, collection_despike[0].data)
 
     with pytest.warns(SunpyUserWarning, match="List of data/headers is empty."):
-        suvi.files_to_map(
-            [L1B_FITS, L1B_FITS, L1B_FITS, L1B_FITS], only_short_exposures=True
-        )
+        suvi.files_to_map([L1B_FITS, L1B_FITS, L1B_FITS, L1B_FITS], only_short_exposures=True)
 
 
 def test_files_to_map_nc(L1B_NC):

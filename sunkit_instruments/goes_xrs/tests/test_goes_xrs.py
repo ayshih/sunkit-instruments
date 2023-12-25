@@ -17,9 +17,7 @@ goes15_fits_filepath = get_test_filepath("go1520110607.fits")  # test old FITS f
 goes15_filepath_nc = get_test_filepath(
     "sci_gxrs-l2-irrad_g15_d20170910_v0-0-0_truncated.nc"
 )  # test re-processed netcdf files
-goes16_filepath_nc = get_test_filepath(
-    "sci_xrsf-l2-flx1s_g16_d20170910_v2-1-0_truncated.nc"
-)  # test the GOES-R data
+goes16_filepath_nc = get_test_filepath("sci_xrsf-l2-flx1s_g16_d20170910_v2-1-0_truncated.nc")  # test the GOES-R data
 
 
 @pytest.mark.parametrize(
@@ -44,9 +42,7 @@ def test_calculate_temperature_em(goes_files, max_temperature):
     # check time index isnt changed
     assert np.all(goeslc.time == goes_temp_em.time)
 
-    assert u.allclose(
-        np.nanmax(goes_temp_em.quantity("temperature")), max_temperature, rtol=1
-    )
+    assert u.allclose(np.nanmax(goes_temp_em.quantity("temperature")), max_temperature, rtol=1)
 
 
 @pytest.mark.remote_data
@@ -55,9 +51,7 @@ def test_calculate_temperature_emiss_abundances():
     goes_temp_em = goes.calculate_temperature_em(goeslc, abundance="photospheric")
     assert isinstance(goes_temp_em, timeseries.GenericTimeSeries)
     # make sure its the right value (different from above test default)
-    assert u.allclose(
-        np.nanmax(goes_temp_em.quantity("temperature")), 23.4 * u.MK, rtol=1
-    )
+    assert u.allclose(np.nanmax(goes_temp_em.quantity("temperature")), 23.4 * u.MK, rtol=1)
 
     # test when an unaccepted abundance is passed.
     with pytest.raises(ValueError):
@@ -69,9 +63,7 @@ def test_calculate_temperature_emiss_errs():
     # check when not a XRS timeseries is passed
     with pytest.raises(TypeError):
         goes.calculate_temperature_em([])
-    lyra_ts = timeseries.TimeSeries(
-        get_test_filepath("lyra_20150101-000000_lev3_std_truncated.fits.gz")
-    )
+    lyra_ts = timeseries.TimeSeries(get_test_filepath("lyra_20150101-000000_lev3_std_truncated.fits.gz"))
     with pytest.raises(TypeError):
         goes.calculate_temperature_em(lyra_ts)
 
@@ -79,9 +71,7 @@ def test_calculate_temperature_emiss_errs():
 @pytest.mark.remote_data
 def test_calculate_temperature_emiss_no_primary_detector_columns_GOESR():
     goeslc = timeseries.TimeSeries(goes16_filepath_nc)
-    goeslc_removed_col = goeslc.remove_column("xrsa_primary_chan").remove_column(
-        "xrsb_primary_chan"
-    )
+    goeslc_removed_col = goeslc.remove_column("xrsa_primary_chan").remove_column("xrsb_primary_chan")
 
     with pytest.warns(SunpyUserWarning):
         goes.calculate_temperature_em(goeslc_removed_col)
@@ -131,9 +121,7 @@ def test_comparison_with_IDL_version(goes_files, idl_files):
     idl_em[nan_inds] = np.nan
 
     ## Only check during flare
-    np.testing.assert_allclose(
-        idl_temperature[500:], goes_temp_em._data["temperature"].values[500:], rtol=0.01
-    )
+    np.testing.assert_allclose(idl_temperature[500:], goes_temp_em._data["temperature"].values[500:], rtol=0.01)
     # IDL output is in units of 1e49, so need to divide goes_temp_em emission measure by this
     np.testing.assert_allclose(
         idl_em[500:],
@@ -208,9 +196,7 @@ def test_flux_to_classletter():
 
 def test_class_to_flux():
     classes = ["A3.49", "A0.23", "M1", "X2.3", "M5.8", "C2.3", "B3.45", "X20"]
-    results = Quantity(
-        [3.49e-8, 2.3e-9, 1e-5, 2.3e-4, 5.8e-5, 2.3e-6, 3.45e-7, 2e-3], "W/m2"
-    )
+    results = Quantity([3.49e-8, 2.3e-9, 1e-5, 2.3e-4, 5.8e-5, 2.3e-6, 3.45e-7, 2e-3], "W/m2")
     for c, r in zip(classes, results):
         assert_almost_equal(r.value, goes.flareclass_to_flux(c).value)
 

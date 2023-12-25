@@ -80,44 +80,30 @@ def calculate_temperature_em(goes_ts, abundance="coronal"):
         Sol. Phys., 227, 231, DOI: 10.1007/s11207-005-2445-z
     """
     if not isinstance(goes_ts, ts.XRSTimeSeries):
-        raise TypeError(
-            f"Input time series must be a XRSTimeSeries instance, not {type(goes_ts)}"
-        )
+        raise TypeError(f"Input time series must be a XRSTimeSeries instance, not {type(goes_ts)}")
 
     if goes_ts.observatory is None:
-        raise ValueError(
-            "The GOES satellite number was not found in the input time series"
-        )
+        raise ValueError("The GOES satellite number was not found in the input time series")
 
     satellite_number = int(goes_ts.observatory.split("-")[-1])
     if (satellite_number < 1) or (satellite_number > MAX_SUPPORTED_SATELLITE):
-        raise ValueError(
-            f"GOES satellite number has to be between 1 and 17, {satellite_number} was found."
-        )
+        raise ValueError(f"GOES satellite number has to be between 1 and 17, {satellite_number} was found.")
 
     allowed_abundances = ["photospheric", "coronal"]
     if abundance not in allowed_abundances:
-        raise ValueError(
-            f"The abundance can only be `coronal` or `photospheric`, not {abundance}."
-        )
+        raise ValueError(f"The abundance can only be `coronal` or `photospheric`, not {abundance}.")
     # Check if GOES-R and whether the primary detector values are given
     if satellite_number >= 16:
         if "xrsa_primary_chan" in goes_ts.columns:
-            output = _manage_goesr_detectors(
-                goes_ts, satellite_number, abundance=abundance
-            )
+            output = _manage_goesr_detectors(goes_ts, satellite_number, abundance=abundance)
         else:
-            warn_user(
-                "No information about primary/secondary detectors in XRSTimeSeries, assuming primary for all"
-            )
+            warn_user("No information about primary/secondary detectors in XRSTimeSeries, assuming primary for all")
             output = _chianti_temp_emiss(goes_ts, satellite_number, abundance=abundance)
 
     # Check if the older files are passed, and if so then the scaling factor needs to be removed.
     # The newer netcdf files now return "true" fluxes so this SWPC factor doesnt need to be removed.
     else:
-        if ("Origin" in goes_ts.meta.metas[0]) and (
-            goes_ts.meta.metas[0].get("Origin") == "SDAC/GSFC"
-        ):
+        if ("Origin" in goes_ts.meta.metas[0]) and (goes_ts.meta.metas[0].get("Origin") == "SDAC/GSFC"):
             remove_scaling = True
         else:
             remove_scaling = False
@@ -133,14 +119,10 @@ def calculate_temperature_em(goes_ts, abundance="coronal"):
 
 @manager.require(
     "goes_chianti_response_table",
-    [
-        "https://sohoftp.nascom.nasa.gov/solarsoft/gen/idl/synoptic/goes/goes_chianti_response_latest.fits"
-    ],
+    ["https://sohoftp.nascom.nasa.gov/solarsoft/gen/idl/synoptic/goes/goes_chianti_response_latest.fits"],
     "4ca9730fb039e8a04407ae0aa4d5e3e2566b93dfe549157aa7c8fc3aa1e3e04d",
 )
-def _chianti_temp_emiss(
-    goes_ts, satellite_number, secondary=0, abundance="coronal", remove_scaling=False
-):
+def _chianti_temp_emiss(goes_ts, satellite_number, secondary=0, abundance="coronal", remove_scaling=False):
     """
     Calculate isothermal temperature and emission measure from GOES XRS observations.
 
@@ -246,11 +228,7 @@ def _chianti_temp_emiss(
     spline = interpolate.splrep(modelratio, modeltemp, s=0)
     temp = interpolate.splev(fluxratio, spline, der=0)
 
-    modelflux = (
-        response_table["FLONG_COR"][sat]
-        if abundance == "coronal"
-        else response_table["FLONG_PHO"][sat]
-    )
+    modelflux = response_table["FLONG_COR"][sat] if abundance == "coronal" else response_table["FLONG_PHO"][sat]
 
     modeltemp = response_table["TEMP_MK"][sat]
 
@@ -298,16 +276,13 @@ def _manage_goesr_detectors(goes_ts, satellite_number, abundance="coronal"):
     for k in secondary_det_conditions:
         dets = secondary_det_conditions[k]
         (second_ind,) = np.where(
-            (goes_ts.quantity("xrsa_primary_chan") == dets[0])
-            & (goes_ts.quantity("xrsb_primary_chan") == dets[1])
+            (goes_ts.quantity("xrsa_primary_chan") == dets[0]) & (goes_ts.quantity("xrsb_primary_chan") == dets[1])
         )
 
         goes_split = ts.TimeSeries(goes_ts._data.iloc[second_ind], goes_ts.units)
 
         if len(goes_split._data) > 0:
-            output = _chianti_temp_emiss(
-                goes_split, satellite_number, abundance=abundance, secondary=int(k)
-            )
+            output = _chianti_temp_emiss(goes_split, satellite_number, abundance=abundance, secondary=int(k))
             outputs.append(output)
 
     if len(outputs) > 1:

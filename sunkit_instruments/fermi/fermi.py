@@ -180,9 +180,7 @@ def get_detector_sun_angles_for_date(date, file):
         # now Sun position with RA in degrees
         sun_pos = [sunpos_ra_not_in_deg[0].to("deg"), sunpos_ra_not_in_deg[1]]
         # now get the angle between each detector and the Sun
-        detector_to_sun_angles.append(
-            get_detector_separation_angles(detector_radecs, sun_pos)
-        )
+        detector_to_sun_angles.append(get_detector_separation_angles(detector_radecs, sun_pos))
 
     # slice the list of dictionaries to get the angles for each detector in a
     # list form
@@ -204,9 +202,7 @@ def get_detector_sun_angles_for_date(date, file):
     ]
     for i in range(13):
         if not key_list[i] == "time":
-            angles[key_list[i]] = [
-                item[key_list[i]].value for item in detector_to_sun_angles
-            ] * u.deg
+            angles[key_list[i]] = [item[key_list[i]].value for item in detector_to_sun_angles] * u.deg
         else:
             angles[key_list[i]] = [item[key_list[i]] for item in detector_to_sun_angles]
 
@@ -232,9 +228,7 @@ def plot_detector_sun_angles(angles):
             plt.plot(
                 angles["time"],
                 angles[n].value,
-                label="{lab} ({val})".format(
-                    lab=n, val=str(np.mean(angles[n].value))[0:5]
-                ),
+                label="{lab} ({val})".format(lab=n, val=str(np.mean(angles[n].value))[0:5]),
             )
     plt.ylim(180, 0)
     plt.ylabel("angle (degrees)")

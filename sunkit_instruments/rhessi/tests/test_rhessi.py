@@ -64,9 +64,7 @@ def test_parse_observing_summary_dbase_file():
     Test that we get the observing summary database file with the content we
     expect.
     """
-    obssum = rhessi.parse_observing_summary_dbase_file(
-        get_test_filepath("hsi_obssumm_filedb_201104.txt")
-    )
+    obssum = rhessi.parse_observing_summary_dbase_file(get_test_filepath("hsi_obssumm_filedb_201104.txt"))
 
     assert obssum["filename"][0][0:20] == "hsi_obssumm_20110401"
     assert obssum["filename"][1][0:20] == "hsi_obssumm_20110402"
@@ -203,9 +201,7 @@ def test_build_energy_bands(raw_bands):
     """
     Success case.
     """
-    built_ranges = rhessi._build_energy_bands(
-        label="Energy bands (keV)", bands=raw_bands
-    )
+    built_ranges = rhessi._build_energy_bands(label="Energy bands (keV)", bands=raw_bands)
 
     assert built_ranges == [
         "3 - 6 keV",
@@ -233,12 +229,8 @@ def test_imagecube2map():
     assert maps["3-6 keV"][1].fits_header["DATAMIN"] == pytest.approx(0.0, abs=1e-4)
     assert maps["3-6 keV"][0].fits_header["DATAMAX"] == pytest.approx(0.0, abs=1e-4)
     assert maps["3-6 keV"][1].fits_header["DATAMAX"] == pytest.approx(0.0, abs=1e-4)
-    assert maps["6-12 keV"][0].fits_header["DATAMIN"] == pytest.approx(
-        -0.00765, abs=1e-4
-    )
-    assert maps["6-12 keV"][1].fits_header["DATAMIN"] == pytest.approx(
-        -0.00765, abs=1e-4
-    )
+    assert maps["6-12 keV"][0].fits_header["DATAMIN"] == pytest.approx(-0.00765, abs=1e-4)
+    assert maps["6-12 keV"][1].fits_header["DATAMIN"] == pytest.approx(-0.00765, abs=1e-4)
     assert maps["6-12 keV"][0].fits_header["DATAMAX"] == pytest.approx(0.1157, abs=1e-4)
     assert maps["6-12 keV"][1].fits_header["DATAMAX"] == pytest.approx(0.1157, abs=1e-4)
 
@@ -250,9 +242,7 @@ def test_imagecube2map_edgecase():
     assert list(maps.keys()) == ["6-12 keV"]
     assert len(maps["6-12 keV"]) == 1
     assert isinstance(maps["6-12 keV"], sunpy.map.MapSequence)
-    assert maps["6-12 keV"][0].fits_header["DATAMIN"] == pytest.approx(
-        -0.0835, abs=1e-4
-    )
+    assert maps["6-12 keV"][0].fits_header["DATAMIN"] == pytest.approx(-0.0835, abs=1e-4)
     assert maps["6-12 keV"][0].fits_header["DATAMAX"] == pytest.approx(1.9085, abs=1e-4)
 
 

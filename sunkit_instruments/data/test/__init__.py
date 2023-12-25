@@ -35,9 +35,7 @@ def get_test_filepath(filename, **kwargs):
     This is a wrapper around `astropy.utils.data.get_pkg_data_filename` which
     sets the ``package`` kwarg to be 'sunkit_instruments.data.test`.
     """
-    return get_pkg_data_filename(
-        filename, package="sunkit_instruments.data.test", **kwargs
-    )
+    return get_pkg_data_filename(filename, package="sunkit_instruments.data.test", **kwargs)
 
 
 def test_data_filenames():

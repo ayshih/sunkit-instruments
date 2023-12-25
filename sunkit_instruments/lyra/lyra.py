@@ -32,9 +32,7 @@ __all__ = [
 ]
 
 
-def remove_lytaf_events_from_timeseries(
-    ts, artifacts=None, return_artifacts=False, force_use_local_lytaf=False
-):
+def remove_lytaf_events_from_timeseries(ts, artifacts=None, return_artifacts=False, force_use_local_lytaf=False):
     """
     Removes periods of LYRA artifacts defined in LYTAF from a TimeSeries.
 
@@ -110,9 +108,7 @@ def remove_lytaf_events_from_timeseries(
     )
     # Create new copy of timeseries and replace data with
     # artifact-free time series.
-    data = pandas.DataFrame(
-        index=time, data={col: channels[i] for i, col in enumerate(data_columns)}
-    )
+    data = pandas.DataFrame(index=time, data={col: channels[i] for i, col in enumerate(data_columns)})
     ts_new = TimeSeries(data, ts.meta)
     if return_artifacts:
         return ts_new, artifact_status
@@ -214,9 +210,7 @@ def _remove_lytaf_events(
     """
     # Check inputs
     if channels and not isinstance(channels, list):
-        raise TypeError(
-            f"channels must be None or a list of numpy arrays of dtype 'float64', not {type(channels)}"
-        )
+        raise TypeError(f"channels must be None or a list of numpy arrays of dtype 'float64', not {type(channels)}")
     if not artifacts:
         raise ValueError("User has supplied no artifacts to remove.")
     if type(artifacts) is str:
@@ -233,9 +227,7 @@ def _remove_lytaf_events(
     clean_channels = copy.deepcopy(channels)
     artifacts_not_found = []
     # Get LYTAF file for given time range
-    lytaf = get_lytaf_events(
-        time[0], time[-1], force_use_local_lytaf=force_use_local_lytaf
-    )
+    lytaf = get_lytaf_events(time[0], time[-1], force_use_local_lytaf=force_use_local_lytaf)
 
     # Find events in lytaf which are to be removed from time series.
     artifact_indices = np.empty(0, dtype="int64")
@@ -361,12 +353,9 @@ def get_lytaf_events(
     start_time = parse_time(start_time)
     end_time = parse_time(end_time)
     # Check combine_files contains correct inputs
-    if not all(
-        suffix in ["lyra", "manual", "ppt", "science"] for suffix in combine_files
-    ):
+    if not all(suffix in ["lyra", "manual", "ppt", "science"] for suffix in combine_files):
         raise ValueError(
-            "Elements in combine_files must be strings equalling "
-            "'lyra', 'manual', 'ppt', or 'science'."
+            "Elements in combine_files must be strings equalling " "'lyra', 'manual', 'ppt', or 'science'."
         )
     # Remove any duplicates from combine_files input
     combine_files = list(set(combine_files))
@@ -402,9 +391,7 @@ def get_lytaf_events(
         # user.  If not, download newest version.
         # First get start time of first event and end time of last
         # event in lytaf.
-        cursor.execute(
-            "select begin_time from event order by begin_time asc " "limit 1;"
-        )
+        cursor.execute("select begin_time from event order by begin_time asc " "limit 1;")
         db_first_begin_time = cursor.fetchone()[0]
         db_first_begin_time = datetime.datetime.fromtimestamp(db_first_begin_time)
         cursor.execute("select end_time from event order by end_time desc " "limit 1;")
@@ -417,9 +404,7 @@ def get_lytaf_events(
                 cursor.close()
                 connection.close()
                 # ...Download latest lytaf file...
-                lytaf_path = cache.download(
-                    urljoin(LYTAF_REMOTE_PATH, dbname), redownload=True
-                )
+                lytaf_path = cache.download(urljoin(LYTAF_REMOTE_PATH, dbname), redownload=True)
                 # ...and open new version of lytaf database.
                 connection = sqlite3.connect(str(lytaf_path))
                 cursor = connection.cursor()
@@ -535,9 +520,7 @@ def get_lytaf_event_types(print_event_types=True):
                 print(str(event_type[0]))
             print(" ")
     # Unpack event types in all_event_types into single list
-    all_event_types = [
-        event_type[0] for event_types in all_event_types for event_type in event_types
-    ]
+    all_event_types = [event_type[0] for event_types in all_event_types for event_type in event_types]
     return all_event_types
 
 
@@ -588,9 +571,7 @@ def split_series_using_lytaf(timearray, data, lytaf):
     disc = tmp_discontinuity[0]
 
     if len(disc) == 0:
-        print(
-            "No events found within time series interval. " "Returning original series."
-        )
+        print("No events found within time series interval. " "Returning original series.")
         return [{"subtimes": time_array, "subdata": data}]
 
     # -1 in diffmask means went from good data to bad
